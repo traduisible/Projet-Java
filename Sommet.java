@@ -1,5 +1,4 @@
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 public class Sommet {
 	
@@ -11,7 +10,16 @@ public class Sommet {
 	private boolean métasommet;
 	
     private boolean étiqueté;
-    private boolean pair;
+    private Étiquette étiquette;
+    
+    /*
+     * On conserve un historique des listes d'adjacences précédant les contractions
+     * successives sous forme de pile, pour le cas où on trouverait une fleur
+     * sur un métasommet.
+     * De même, on conserve un historique des sommets successivement contractés.
+     */
+    private Stack<Set<Sommet>> historiqueVoisins;
+    private Stack<Set<Sommet>> historiqueContractés;
 	
     
 	//Constructeurs
@@ -19,19 +27,23 @@ public class Sommet {
 	public Sommet()
 	{
 		voisins = new TreeSet<Sommet>();
-		setContracté(new Boolean(false));
-		setMétasommet(new Boolean(false));
-		setÉtiqueté(new Boolean(false));
-		setPair(new Boolean(false));
+		contracté = new Boolean(false);
+		métasommet = new Boolean(false);
+		étiqueté = new Boolean(false);
+		étiquette = null;
+		historiqueVoisins = new Stack<Set<Sommet>>();
+		historiqueContractés = new Stack<Set<Sommet>>();
 	}
 	
 	public Sommet(Set<Sommet> voisins)
 	{
 		this.voisins = voisins;
-		setContracté(new Boolean(false));
-		setMétasommet(new Boolean(false));
-		setÉtiqueté(new Boolean(false));
-		setPair(new Boolean(false));
+		contracté = new Boolean(false);
+		métasommet = new Boolean(false);
+		étiqueté = new Boolean(false);
+		étiquette = null;
+		historiqueVoisins = new Stack<Set<Sommet>>();
+		historiqueContractés = new Stack<Set<Sommet>>();
 	}
 	
 	
@@ -57,9 +69,19 @@ public class Sommet {
 		this.étiqueté = étiqueté;
 	}
 	
-	public void setPair(boolean pair)
+	public void setÉtiquette(Étiquette étiquette)
 	{
-		this.pair = pair;
+		this.étiquette = étiquette;
+	}
+	
+	public void setHistoriqueVoisins(Stack<Set<Sommet>> historiqueVoisins)
+	{
+		this.historiqueVoisins = historiqueVoisins;
+	}
+	
+	public void setHistoriqueContractés(Stack<Set<Sommet>> historiqueContractés)
+	{
+		this.historiqueContractés = historiqueContractés;
 	}
 	
 	
@@ -85,17 +107,19 @@ public class Sommet {
 		return étiqueté;
 	}
 
-	public boolean isPair()
+	public Étiquette getÉtiquette()
 	{
-		return pair;
+		return étiquette;
 	}
 
+	public Stack<Set<Sommet>> getHistoriqueVoisins()
+	{
+		return historiqueVoisins;
+	}
 
-
-
-
-
-
+	public Stack<Set<Sommet>> getHistoriqueContractés()
+	{
+		return historiqueContractés;
+	}
 	
-
 }
