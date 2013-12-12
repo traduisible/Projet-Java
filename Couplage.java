@@ -68,6 +68,7 @@ public class Couplage {
 	// Méthodes publiques
 	
 	public void différenceSymétrique(Couplage P)
+	//Attention, la caractéristique de "couplés" n'est pas préservée en général, seulement dans le cas où P est un chemin augmentant.
 	{
 		Set <Arête> intersection = new HashSet<Arête>(arêtes);
 		intersection.retainAll(P.getArêtes());
