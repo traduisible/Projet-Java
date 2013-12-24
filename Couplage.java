@@ -7,7 +7,7 @@ public class Couplage {
 	
 	// Variables privées
 	
-	private Hashtable<Sommet,Sommet> arêtes; // Ici, une arête uv est représentée par (clé : u, objet : v) et (clé : v, objet : u). On perd en compacité, mais l'on gagne en rapidité
+	private Hashtable<Sommet,Sommet> arêtes; // Ici, une arête uv est représentée par (clé : u, objet : v) et (clé : v, objet : u). On perd en compacité, mais l'on gagne en rapidité.
 	private Set<Sommet> couplés;
 	
 	

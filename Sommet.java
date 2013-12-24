@@ -84,6 +84,11 @@ public class Sommet implements Comparable<Sommet>{
 		voisins.add(voisin);
 	}
 	
+	public void addVoisins(Set<Sommet> voisins)
+	{
+		this.voisins.addAll(voisins);
+	}
+	
 	public void setContracté(boolean contracté)
 	{
 		this.contracté = contracté;
@@ -103,9 +108,9 @@ public class Sommet implements Comparable<Sommet>{
 	{
 		this.étiquette = étiquette;
 	}
-	public void setÉtiquette(Sommet origine, boolean pair, Sommet prédecesseur)
+	public void setÉtiquette(Sommet origine, boolean pair, Sommet Prédécesseur)
 	{
-		étiquette = new Étiquette(origine, pair, prédecesseur);
+		étiquette = new Étiquette(origine, pair, Prédécesseur);
 	}
 	
 	public void setHistorique(Stack<État> historique)
@@ -149,6 +154,23 @@ public class Sommet implements Comparable<Sommet>{
 	public Étiquette getÉtiquette()
 	{
 		return étiquette;
+	}
+	
+	public boolean hasPrédécesseur()
+	{
+		return(étiqueté && étiquette.getPrédécesseur() != null);
+	}
+	
+	public Sommet getPrédécesseur()
+	{
+		if (étiqueté)
+		{
+			return étiquette.getPrédécesseur();
+		}
+		else
+		{
+			return null;
+		}
 	}
 
 	public Stack<État> getHistorique()

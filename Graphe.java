@@ -113,6 +113,65 @@ public class Graphe {
 			}
 	}
 	
+	/*
+	 * Trouve une corolle contenant u et v en remontant les Prédécesseurs de chacun.
+	 * Le comportement de l'algorithme n'est pas garanti si u et v ne sont pas adjacents (les sommets entre u et v seront alors oubliés),
+	 * ou s'ils ne sont pas dans la même corolle.
+	 */
+	
+	public Set<Sommet> corolle(Sommet u, Sommet v)
+	{
+		Set<Sommet> corolle = new HashSet<Sommet>();
+		corolle.add(u);
+		corolle.add(v);
+		Sommet predU = u.getPrédécesseur();
+		Sommet predV = v.getPrédécesseur();
+		while (!corolle.contains(predU) && !corolle.contains(predV) && predU.hasPrédécesseur() && predV.hasPrédécesseur())
+		{
+			corolle.add(predU);
+			corolle.add(predV);
+			predU = predU.getPrédécesseur();
+			predV = predV.getPrédécesseur();
+		}
+		Sommet w = predU;
+		if (corolle.contains(predV))
+			// w est la base de la corolle, que l'on va utiliser pour enlever les éléments que l'on a ajouté en trop.
+		{
+		w = predV;
+		}
+		corolle.add(w); // On ajoute w, car dans le cas où u et v étaient équidistants à la corolle, il n'a pas été ajouté.
+		w = w.getPrédécesseur();
+		while (corolle.contains(w))
+			// On enlève les éléments de la tige.
+		{
+			corolle.remove(w);
+			w = w.getPrédécesseur();
+		}
+		return corolle;
+	}
+	
+	/*
+	 * Transforme le graphe en un graphe H = G/S où S est réduit à un seul métasommet.
+	 * Le comportement de l'algorithme n'est pas garanti si S n'est pas connexe ou si S contient des sommets contractés, mais on l'utilisera uniquement sur des corolles.
+	 */
+	public void compresser(Set<Sommet> S)
+	{
+		Iterator<Sommet> it = S.iterator();
+		// On choisit un sommet s pour représenter S
+		Sommet s = it.next();
+		// s est désormais un métasommet
+		s.setMétasommet(true);
+		Set<Sommet> voisins = new HashSet<Sommet>(s.getVoisins());
+		// On ajoute tous les voisins de chaque sommet au sommet s
+		while (it.hasNext())
+		{
+			Sommet x = it.next();
+			x.setContracté(true);
+			s.addVoisins(x.getVoisins());			
+		}
+		s.addState(voisins, S); // enlever s de S ?
+	}
+	
 	/* 
 	 * Effectue un parcours en profondeur du graphe en marquant les sommets au fur et à mesure, à partir du sommet u,
 	 * où u est à distance paire du sommet s.
@@ -165,9 +224,10 @@ public class Graphe {
 						return 1;
 					}
 					else
-						// On a trouvé une fleur, que l'on va compresser.
+						// On a trouvé une fleur que l'on va compresser.
 					{
-						// Compresser la fleur
+						Set<Sommet> corolle = corolle(u, v);
+						compresser(corolle);
 						return 2;
 					}
 				}
