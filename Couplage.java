@@ -1,11 +1,13 @@
-import java.util.*;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Hashtable;
 
 
 public class Couplage {
 	
 	// Variables privées
 	
-	private Set<Arête> arêtes;
+	private Hashtable<Sommet,Sommet> arêtes; // Ici, une arête uv est représentée par (clé : u, objet : v) et (clé : v, objet : u). On perd en compacité, mais l'on gagne en rapidité
 	private Set<Sommet> couplés;
 	
 	
@@ -13,20 +15,31 @@ public class Couplage {
 	
 	public Couplage()
 	{
-		arêtes = new HashSet<Arête>();
+		arêtes = new Hashtable<Sommet,Sommet>();
 		couplés = new HashSet<Sommet>();
 	}
 	
 	public Couplage(Arête arête)
 	{
-		arêtes = new HashSet<Arête>();
-		arêtes.add(arête);
+		arêtes = new Hashtable<Sommet,Sommet>();
+		arêtes.put(arête.getDépart(), arête.getArrivée());
+		arêtes.put(arête.getArrivée(), arête.getDépart());
 		couplés = new HashSet<Sommet>();
 		couplés.add(arête.getDépart());
 		couplés.add(arête.getArrivée());
 	}
 	
-	public Couplage(Set<Arête> arêtes, Set<Sommet> couplés)
+	public Couplage(Sommet départ, Sommet arrivée)
+	{
+		arêtes = new Hashtable<Sommet,Sommet>();
+		arêtes.put(départ, arrivée);
+		arêtes.put(arrivée, départ);
+		couplés = new HashSet<Sommet>();
+		couplés.add(départ);
+		couplés.add(arrivée);
+	}
+	
+	public Couplage(Hashtable<Sommet,Sommet> arêtes, Set<Sommet> couplés)
 	{
 		this.arêtes = arêtes;
 		this.couplés = couplés;
@@ -34,7 +47,7 @@ public class Couplage {
 	
 	// Accesseurs
 	
-	public Set<Arête> getArêtes()
+	public Hashtable<Sommet,Sommet> getArêtes()
 	{
 		return arêtes;
 	}
@@ -47,16 +60,56 @@ public class Couplage {
 	
 	// Modifieurs
 	
-	public void setArêtes(Set<Arête> arêtes)
+	public void setArêtes(Hashtable<Sommet,Sommet> arêtes)
 	{
 		this.arêtes = arêtes;
 	}
 	
 	public void addArête(Arête arête)
 	{
-		arêtes.add(arête);
+		arêtes.put(arête.getDépart(),arête.getArrivée());
+		arêtes.put(arête.getArrivée(),arête.getDépart());
 		couplés.add(arête.getDépart());
 		couplés.add(arête.getArrivée());
+	}
+	
+	/*
+	 * Ajoute une arête en supposant qu'aucun nouveau sommet n'est ajouté au couplage
+	 * (Cela permet de ne pas effectuer la coûteuse mise à jour des sommets couplés lorsque l'on remonte le chemin depuis v)
+	 */
+	public void addArêteSansModif(Arête arête)
+	{
+		arêtes.put(arête.getDépart(),arête.getArrivée());
+		arêtes.put(arête.getArrivée(),arête.getDépart());		
+	}
+	
+	public void addArête(Sommet départ, Sommet arrivée)
+	{
+		arêtes.put(départ, arrivée);
+		arêtes.put(arrivée, départ);
+		couplés.add(départ);
+		couplés.add(arrivée);
+	}
+	
+	// Idem	
+	public void addArêteSansModif(Sommet départ, Sommet arrivée)
+	{
+		arêtes.put(départ, arrivée);
+		arêtes.put(arrivée, départ);
+	}
+	
+	public void removeArête(Sommet départ)
+	{
+		Sommet arrivée = arêtes.get(départ);
+		arêtes.remove(départ);
+		couplés.remove(départ);
+		couplés.remove(arrivée);
+	}
+	
+	// Même idée que pour l'ajout
+	public void removeArêteSansModif(Sommet départ)
+	{
+		arêtes.remove(départ);
 	}
 	
 	public void setCouplés(Set<Sommet> couplés)
@@ -64,10 +117,19 @@ public class Couplage {
 		this.couplés = couplés;
 	}
 	
+	/*
+	 * Permet d'ajouter un sommet aux sommets couplés, indépendamment de ce qui se passe pour les arêtes.
+	 * (Cela est utile encore une fois pour réduire le nombre d'opérations inutiles)
+	 */
+	public void addCouplé(Sommet s)
+	{
+		couplés.add(s);
+	}
+	
 	
 	// Méthodes publiques
 	
-	public void différenceSymétrique(Couplage P)
+	/*public void différenceSymétrique(Couplage P)
 	//Attention, la caractéristique de "couplés" n'est pas préservée en général, seulement dans le cas où P est un chemin augmentant.
 	{
 		Set <Arête> intersection = new HashSet<Arête>(arêtes);
@@ -75,7 +137,7 @@ public class Couplage {
 		arêtes.addAll(P.getArêtes());
 		arêtes.removeAll(intersection);
 		couplés.addAll(P.getCouplés());
-	}
+	}*/
 	
 	/*public Couplage différenceSymétriqueHorsPlace(Couplage P)
 	{

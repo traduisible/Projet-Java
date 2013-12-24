@@ -1,10 +1,13 @@
 import java.util.*;
 
-public class Sommet {
+public class Sommet implements Comparable<Sommet>{
 	
 	//Variables privées
 	
+	// Les noms des sommets permettront de les comparer facilement
 	private String nom;
+	// On garde le nombre de sommets déjà créés pour pouvoir garantir l'unicité du nom lorque l'on en crée un nouveau
+	private static int compteur;
 	
 	private Set<Sommet> voisins;
 	
@@ -25,9 +28,14 @@ public class Sommet {
     
 	//Constructeurs
     
+    /*
+     * Si l'utilisateur ne spécifie pas de nom, on utilise le compteur pour en créer un nouveau.
+     * Les nouveaux sommets ainsi créés sont numérotés Ni, où i est le compteur actuel
+     */
 	public Sommet()
 	{
-		nom = null;
+		nom = new String("N"+Integer.toString(compteur));
+		setCompteur(compteur+1);
 		voisins = new HashSet<Sommet>();
 		contracté = new Boolean(false);
 		métasommet = new Boolean(false);
@@ -95,10 +103,19 @@ public class Sommet {
 	{
 		this.étiquette = étiquette;
 	}
+	public void setÉtiquette(Sommet origine, boolean pair, Sommet prédecesseur)
+	{
+		étiquette = new Étiquette(origine, pair, prédecesseur);
+	}
 	
 	public void setHistorique(Stack<État> historique)
 	{
 		this.historique = historique;
+	}
+	
+	public void setCompteur(int compteur)
+	{
+		Sommet.compteur = compteur;
 	}
 	
 	
@@ -139,6 +156,11 @@ public class Sommet {
 		return historique;
 	}
 	
+	public int getCompteur()
+	{
+		return compteur;
+	}
+	
 	
 	//Méthodes publiques
 	
@@ -155,6 +177,11 @@ public class Sommet {
 	public void addState(Set<Sommet> voisins, Set<Sommet> contractés)
 	{
 		historique.add(new État(voisins, contractés));
+	}
+
+	@Override
+	public int compareTo(Sommet s) {
+		return nom.compareTo(s.getNom());
 	}
 	
 }

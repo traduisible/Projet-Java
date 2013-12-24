@@ -25,9 +25,9 @@ public class Test {
 		G.addArête(D, E);
 		G.addArête(E, F);
 		Couplage M = G.couplageMaximal();
-		for (Arête e : M.getArêtes())
+		for (Sommet u : M.getArêtes().keySet())
 		{
-			System.out.println("("+e.getDépart().getNom()+","+e.getArrivée().getNom()+")");
+			System.out.println("("+u.getNom()+","+M.getArêtes().get(u).getNom()+")");
 		}
 		
 
