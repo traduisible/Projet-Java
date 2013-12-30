@@ -29,6 +29,7 @@ public class Test {
 		{
 			System.out.println("("+u.getNom()+","+M.getArêtes().get(u).getNom()+")");
 		}
+		G.cheminAugmentant();
 		
 
 	}

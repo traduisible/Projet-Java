@@ -179,15 +179,15 @@ public class Graphe {
 	 * Si une fleur est trouvée, dfs compresse la fleur et renvoie 2.
 	 * Sinon, dfs renvoie 0.
 	 */
-	public int dfs(Sommet u, Sommet s, Set<Sommet> libresNonÉtiquetés, Hashtable<Sommet,Sommet> arêtes, Couplage couplage)
+	public int dfs(Sommet u, Sommet s, Hashtable<Sommet,Sommet> arêtes, Couplage couplage)
 	{
 		for (Sommet v : u.getVoisins())
 		{
-			if (libresNonÉtiquetés.contains(v))
+			if (v.isLibreNonÉtiqueté(couplage))
 				// Fantastique, on a trouvé un chemin augmentant. On l'augmente et on renvoie fièrement 1.
 			{
-				libresNonÉtiquetés.remove(v); // On va coupler v, il n'est donc plus libre.
 				remonter (v, s, false, couplage);
+				couplage.addCouplé(v);
 				return 1;
 			}
 			else
@@ -197,7 +197,7 @@ public class Graphe {
 				{
 					v.setÉtiquette(s, false, u);
 					arêtes.get(v).setÉtiquette(s, true, v);
-					return dfs(arêtes.get(v), s, libresNonÉtiquetés, arêtes, couplage);		
+					return dfs(arêtes.get(v), s, arêtes, couplage);		
 				}
 				else
 				{
@@ -207,7 +207,7 @@ public class Graphe {
 					{
 						for (Sommet w : v.getVoisins())
 						{
-							int x = dfs(w, s, libresNonÉtiquetés, arêtes, couplage);
+							int x = dfs(w, s, arêtes, couplage);
 							if (x != 0)
 								// Dès qu'il se passe quelque chose, on s'arrête et on renvoie la valeur correspondante, sans quoi l'algorithme pourrait faire n'importe quoi.
 								{
@@ -240,17 +240,20 @@ public class Graphe {
 	public void cheminAugmentant()
 	{
 		Couplage couplage = couplageMaximal();
-		Set<Sommet> libresNonÉtiquetés = new HashSet<Sommet>();
-		libresNonÉtiquetés.addAll(sommets);
-		libresNonÉtiquetés.removeAll(couplage.getCouplés()); // On stocke les sommets libres et non étiquetés pour y accéder rapidement
-		for (Sommet s : libresNonÉtiquetés)
+		int x = 0;
+		do
+			// On parcourt le graphe à la recherche de chemins augmentants ou de fleurs jusqu'à ce qu'il ne reste rien.
 		{
-			dfs(s, s, libresNonÉtiquetés, couplage.getArêtes(), couplage);
+			x = 0;
+			for (Sommet s : sommets)
+			{
+				if (s.isLibreNonÉtiqueté(couplage))
+				{
+					x = x + dfs(s, s, couplage.getArêtes(), couplage);
+				}
+			}
 		}
-		
-		
-		
-		
+		while (x != 0);
 	}
 
 }

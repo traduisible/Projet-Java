@@ -150,6 +150,11 @@ public class Sommet implements Comparable<Sommet>{
 	{
 		return étiqueté;
 	}
+	
+	public boolean isLibreNonÉtiqueté(Couplage couplage)
+	{
+		return (!couplage.getCouplés().contains(this) && !étiqueté);
+	}
 
 	public Étiquette getÉtiquette()
 	{
