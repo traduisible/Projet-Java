@@ -149,6 +149,21 @@ public class Couplage {
 		return (new Couplage(union));
 	}*/
 	
+	public void print()
+	{
+		HashSet<Sommet> printed = new HashSet<Sommet>();
+		for (Sommet s : couplés)
+		{
+			if (!printed.contains(s))
+			{
+				System.out.println("("+s.getNom()+","+arêtes.get(s).getNom()+")");
+				printed.add(s);
+				printed.add(arêtes.get(s));
+			}
+		}
+		
+		
+	}
 
 
 }

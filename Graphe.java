@@ -172,32 +172,41 @@ public class Graphe {
 		s.addState(voisins, S); // enlever s de S ?
 	}
 	
+	public void compresser(Fleur fleur)
+	{
+		Set<Sommet> corolle = corolle(fleur.getPétaleA(), fleur.getPétaleB());
+		compresser(corolle);
+	}
+	
 	/* 
 	 * Effectue un parcours en profondeur du graphe en marquant les sommets au fur et à mesure, à partir du sommet u,
 	 * où u est à distance paire du sommet s.
-	 * Si un chemin augmentant est trouvé, dfs augmente le chemin et renvoie 1.
-	 * Si une fleur est trouvée, dfs compresse la fleur et renvoie 2.
-	 * Sinon, dfs renvoie 0.
+	 * Si un chemin augmentant est trouvé, renvoie une exception CheminAugmentant contenant les renseignements nécessaires pour reconstituer le chemin.
+	 * Si une fleur est trouvée, renvoie une exception Fleur contenant les renseignements nécessaires pour reconstituer la fleur.
+	 * Sinon, dfs ne renvoie rien.
 	 */
-	public int dfs(Sommet u, Sommet s, Hashtable<Sommet,Sommet> arêtes, Couplage couplage)
+	public void dfs(Sommet u, Sommet s, Hashtable<Sommet,Sommet> arêtes, Couplage couplage) throws Fleur, CheminAugmentant
 	{
+		System.out.println(u.getNom());
 		for (Sommet v : u.getVoisins())
 		{
 			if (v.isLibreNonÉtiqueté(couplage))
-				// Fantastique, on a trouvé un chemin augmentant. On l'augmente et on renvoie fièrement 1.
+				// Fantastique, on a trouvé un chemin augmentant !
 			{
-				remonter (v, s, false, couplage);
-				couplage.addCouplé(v);
-				return 1;
+				System.out.println("Chemin augmentant à "+v.getNom());
+				throw new CheminAugmentant(s,v);
+				/*remonter (v, s, false, couplage);
+				couplage.addCouplé(v);*/
 			}
 			else
 			{
 				if (!v.isÉtiqueté())
 					// Ici, rien d'impressionnant. On étiquette v et on continue notre exploration.
 				{
+					System.out.println("Rien à "+v.getNom());
 					v.setÉtiquette(s, false, u);
 					arêtes.get(v).setÉtiquette(s, true, v);
-					return dfs(arêtes.get(v), s, arêtes, couplage);		
+					dfs(arêtes.get(v), s, arêtes, couplage);		
 				}
 				else
 				{
@@ -205,39 +214,69 @@ public class Graphe {
 					if (!étiquette.isPair())
 						// v est à distance impaire, donc on poursuit notre exploration sur ses voisins.
 					{
+						System.out.println(v.getNom()+" est à distance impaire");
 						for (Sommet w : v.getVoisins())
 						{
-							int x = dfs(w, s, arêtes, couplage);
-							if (x != 0)
-								// Dès qu'il se passe quelque chose, on s'arrête et on renvoie la valeur correspondante, sans quoi l'algorithme pourrait faire n'importe quoi.
-								{
-								return x;
-								}
+							if (!w.isÉtiqueté())
+							{
+								w.setÉtiquette(s, true, v);
+								dfs(w, s, arêtes, couplage);
+							}
 						}
 					}
 					if (étiquette.getOrigine() != s)
-						// On est ici "au milieu" d'un chemin augmentant. On le remonte correctement et on renvoie, tout heureux, 1.
+						// On est ici "au milieu" d'un chemin augmentant.
 					{
-						remonter(v, étiquette.getOrigine(), false, couplage);
+						System.out.println("On a trouvé le milieu d'un chemin en "+v.getNom());
+						throw new CheminAugmentant(v,étiquette.getOrigine(),s);
+						/*remonter(v, étiquette.getOrigine(), false, couplage);
 						v.setÉtiquette(s, true, u);
-						remonter(v, s, false, couplage);
-						return 1;
+						remonter(v, s, false, couplage);*/
 					}
 					else
-						// On a trouvé une fleur que l'on va compresser.
+						// On a trouvé une fleur.
 					{
-						Set<Sommet> corolle = corolle(u, v);
-						compresser(corolle);
-						return 2;
+						System.out.println("On a trouvé une fleur en "+v.getNom());
+						throw new Fleur(u,v);
 					}
 				}
 			}
 		}
-		return 0;
 	}
 	
+	// Renvoie un chemin augmentant s'il en existe un, retourne null sinon.
+	public CheminAugmentant cheminAugmentant(Couplage couplage)
+	{
+		try
+		{
+			for (Sommet s : sommets)
+			{
+				if (s.isLibreNonÉtiqueté(couplage))
+				{
+					s.setÉtiquette(s, true, null);
+					dfs(s, s, couplage.getArêtes(), couplage);
+				}
+			}
+		}
+		catch (Fleur fleur) {
+			compresser(fleur);
+			CheminAugmentant cheminCompressé = cheminAugmentant(couplage);
+			if (cheminCompressé == null)
+			{
+				return null;
+			}
+			else
+			{
+				return cheminCompressé; // Do something here !
+			}
+		}
+		catch (CheminAugmentant chemin) {
+			return chemin;
+		}
+		return null;
+	}
 	
-	public void cheminAugmentant()
+	public Couplage couplageMaximum()
 	{
 		Couplage couplage = couplageMaximal();
 		int x = 0;
@@ -249,11 +288,14 @@ public class Graphe {
 			{
 				if (s.isLibreNonÉtiqueté(couplage))
 				{
-					x = x + dfs(s, s, couplage.getArêtes(), couplage);
+					System.out.println("On va appeler une DFS à "+s.getNom());
+					s.setÉtiquette(s, true, null);
+
 				}
 			}
 		}
 		while (x != 0);
+		return couplage;
 	}
 
 }

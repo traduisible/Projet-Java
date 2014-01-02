@@ -107,10 +107,12 @@ public class Sommet implements Comparable<Sommet>{
 	public void setÉtiquette(Étiquette étiquette)
 	{
 		this.étiquette = étiquette;
+		étiqueté = true;
 	}
 	public void setÉtiquette(Sommet origine, boolean pair, Sommet Prédécesseur)
 	{
 		étiquette = new Étiquette(origine, pair, Prédécesseur);
+		étiqueté = true;
 	}
 	
 	public void setHistorique(Stack<État> historique)

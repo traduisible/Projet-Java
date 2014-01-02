@@ -11,6 +11,7 @@ public class Test {
 		Sommet D = new Sommet("D");
 		Sommet E = new Sommet("E");
 		Sommet F = new Sommet("F");
+		Sommet H = new Sommet("H");
 		Graphe G = new Graphe();
 		G.addSommet(A);
 		G.addSommet(B);
@@ -18,20 +19,19 @@ public class Test {
 		G.addSommet(D);
 		G.addSommet(E);
 		G.addSommet(F);
+		G.addSommet(H);
 		G.addArête(A, B);
 		G.addArête(A, D);
 		G.addArête(B, D);
 		G.addArête(C, D);
 		G.addArête(D, E);
 		G.addArête(E, F);
+		G.addArête(F,H);
 		Couplage M = G.couplageMaximal();
-		for (Sommet u : M.getArêtes().keySet())
-		{
-			System.out.println("("+u.getNom()+","+M.getArêtes().get(u).getNom()+")");
-		}
-		G.cheminAugmentant();
-		
-
+		M.print();
+		System.out.println();
+		Couplage Z = G.couplageMaximum();
+		Z.print();
 	}
 
 }
